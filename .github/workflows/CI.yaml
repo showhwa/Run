@@ -116,6 +116,44 @@ jobs:
           python main3.py
           du -sh *
 
+  run4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone
+        uses: actions/checkout@v4
+        with:
+          repository: ${{secrets.REPO_NAME}}
+          token: ${{secrets.ACCESS_TOKEN}}
+          path: ./work1
+
+      # 安装 rclone
+      - name: Install rclone
+        run: |
+          curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          sudo mv rclone-*-linux-amd64/rclone /usr/bin/
+          rm rclone-current-linux-amd64.zip
+          rm -rf rclone-*-linux-amd64
+          rclone version
+
+      # 配置 rclone
+      - name: Setup rclone config
+        env:
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          echo "$RCLONE_CONFIG_BASE64" | base64 -d > ~/.config/rclone/rclone.conf
+          chmod 600 ~/.config/rclone/rclone.conf
+
+      - name: Run3
+        run: |
+          cd ./work1
+          python info.py
+          python main4.py
+          du -sh *
+
   run2:
     runs-on: ubuntu-latest
     steps:
