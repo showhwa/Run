@@ -75,21 +75,21 @@ jobs:
         run: |
           cd ./work1
           python info.py
-          # python main.py
+          python main.py
           du -sh *
 
       - name: Run3
         run: |
           cd ./work1
           python info.py
-          # python main3.py
+          python main3.py
           du -sh *
 
       - name: Run2
         run: |
           cd ./work1
           python info.py
-          # python main2.py
+          python main2.py
           du -sh *
           > ~/.config/rclone/rclone.conf
 

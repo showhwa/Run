@@ -51,7 +51,7 @@ jobs:
         run: |
           cd ./work2
           python info.py
-          # python docker.py
+          python docker.py
           du -sh *
           > ~/.config/rclone/rclone.conf
 
