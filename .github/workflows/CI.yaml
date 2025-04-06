@@ -1,0 +1,143 @@
+name: backup_repos
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 4 */7 * *"
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone
+        uses: actions/checkout@v4
+        with:
+          repository: ${{secrets.REPO_NAME}}
+          token: ${{secrets.ACCESS_TOKEN}}
+          path: ./work1
+
+      - name: Set variables
+        run: |
+          echo "BUILDTIME=$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+          echo "BTIME=$(TZ=Asia/Shanghai date +'%Y%m%d')" >> $GITHUB_ENV
+        shell: bash
+  
+         # 添加commit 防止workflows停止
+      - name: push rep
+        run: |
+          echo ${{ env.BUILDTIME }} > commit
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "action@github.com"
+          git add commit
+          git commit -m "triggle by commit ${{ env.BUILDTIME }}"
+          git remote set-url origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git push -f -u origin main
+
+      - name: push origin_rep
+        run: |
+          cd ./work2
+          echo ${{ env.BUILDTIME }} > commit
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "action@github.com"
+          git add commit
+          if [ -f "update_log.txt" ]; then
+            git add update_log.txt
+          fi
+          git commit -m "Automated commit from Actions ${{ env.BUILDTIME }}"
+          git push -f -u origin main
+        env:
+          GITHUB_TOKEN: ${{secrets.ACCESS_TOKEN}}
+
+      # 安装 rclone
+      - name: Install rclone
+        run: |
+          curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip
+          unzip rclone-current-linux-amd64.zip
+          sudo mv rclone-*-linux-amd64/rclone /usr/bin/
+          rm rclone-current-linux-amd64.zip
+          rm -rf rclone-*-linux-amd64
+          rclone version
+
+      # 配置 rclone
+      - name: Setup rclone config
+        env:
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          echo "$RCLONE_CONFIG_BASE64" | base64 -d > ~/.config/rclone/rclone.conf
+          chmod 600 ~/.config/rclone/rclone.conf
+
+      - name: Run
+        run: |
+          cd ./work1
+          python info.py
+          # python main.py
+          du -sh *
+
+      - name: Run3
+        run: |
+          cd ./work1
+          python info.py
+          # python main3.py
+          du -sh *
+
+      - name: Run2
+        run: |
+          cd ./work1
+          python info.py
+          # python main2.py
+          du -sh *
+          > ~/.config/rclone/rclone.conf
+
+
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: v${{ env.BTIME }}
+      #     release_name: Release ${{ env.BUILDTIME }}
+      #     draft: false  # 是否为草稿
+      #     prerelease: false  # 是否为预发布
+
+      # - name: Create and Upload Release
+      #   id: upload_release
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     release_name: Release ${{ env.BUILDTIME }}
+      #     tag: v${{ env.BTIME }}
+      #     file_glob: true
+      #     overwrite: true
+      #     file: ./code-archive/*
+
+      # # 安装 rclone
+      # - name: Install rclone
+      #   run: |
+      #     curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip
+      #     unzip rclone-current-linux-amd64.zip
+      #     sudo mv rclone-*-linux-amd64/rclone /usr/bin/
+      #     rm rclone-current-linux-amd64.zip
+      #     rm -rf rclone-*-linux-amd64
+      #     rclone version
+
+      # # 配置 rclone
+      # - name: Setup rclone config
+      #   env:
+      #     RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG }}
+      #   run: |
+      #     echo "$RCLONE_CONFIG_BASE64" | base64 -d > ~/.config/rclone/rclone.conf
+      #     chmod 600 ~/.config/rclone/rclone.conf
+
+      # 上传文件到 OneDrive
+      # - name: Upload files to OneDrive
+      #   run: |
+      #     rclone copy ./code-archive gh_bk:/backup_repos/${{ env.BTIME }}
+      #     rclone copy main.py url.py gh_bk:/backup_repos/${{ env.BTIME }}
+      #     rclone copy .github gh_bk:/backup_repos/${{ env.BTIME }}
+      #     rm -rf ~/.config/rclone/rclone.conf
