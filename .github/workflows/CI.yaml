@@ -40,7 +40,7 @@ jobs:
 
       - name: push origin_rep
         run: |
-          cd ./work2
+          cd ./work1
           echo ${{ env.BUILDTIME }} > commit
           git config --local user.name "github-actions[bot]"
           git config --local user.email "action@github.com"
