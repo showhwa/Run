@@ -139,6 +139,14 @@ jobs:
           rm -rf rclone-*-linux-amd64
           rclone version
 
+      # 配置 rclone
+      - name: Setup rclone config
+        env:
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          echo "$RCLONE_CONFIG_BASE64" | base64 -d > ~/.config/rclone/rclone.conf
+          chmod 600 ~/.config/rclone/rclone.conf
+
       - name: Run2
         run: |
           cd ./work1
