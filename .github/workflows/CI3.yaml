@@ -2,7 +2,7 @@ name: CI3
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4 */7 * *"
+    - cron: "0 4 */16 * *"
   # push:
   #   branches:
   #     - main

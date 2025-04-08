@@ -2,7 +2,7 @@ name: backup_dockers
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 10 */5 * *"
+    - cron: "0 10 */8 * *"
   # push:
   #   branches:
   #     - main
