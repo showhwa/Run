@@ -39,7 +39,7 @@ jobs:
           echo "$RCLONE_CONFIG_BASE64" | base64 -d > ~/.config/rclone/rclone.conf
           chmod 600 ~/.config/rclone/rclone.conf
 
-      - name: Run3
+      - name: Run4
         run: |
           cd ./work1
           python info.py
