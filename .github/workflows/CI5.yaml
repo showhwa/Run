@@ -2,13 +2,13 @@ name: CI5
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4 */16 * *"
+    - cron: "0 10 */7 * *"
   # push:
   #   branches:
   #     - main
 
 jobs:
-  run4:
+  run5:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
